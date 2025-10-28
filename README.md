@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # 🕵️‍♂️ Los Angeles Crime Pattern Analysis and Prediction System
 
 > *An applied machine learning project for binary classification of violent vs non-violent crimes using Los Angeles Police Department data (2020–2025).*
@@ -88,6 +87,9 @@ The raw dataset underwent extensive preprocessing to ensure model reliability:
 5. **Crime Classification Logic**
    - Defined violent crime categories based on FBI Uniform Crime Reporting standards
    - Created binary target variable: 'violent' vs 'nonviolent'
+
+Note: Due to GitHub's file size limitations, the dataset file is not included directly in this repository. 
+Please refer to `data/DATASET_SOURCE.txt` for instructions on downloading the dataset.
 
 The preprocessing reduced the dataset from its original size while maintaining data integrity and ensuring all records contained complete information for the selected features.
 
@@ -437,5 +439,3 @@ This project is submitted as part of an academic assignment. The dataset is publ
 **Last Updated:** October 28, 2025  
 **Version:** 1.0
 =======
-# ML-ASSIGNMENT
->>>>>>> 84774fdf65eacde2bbec6a94a26f8c5bb12b697d

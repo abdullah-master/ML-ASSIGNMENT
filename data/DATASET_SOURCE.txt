@@ -1,0 +1,6 @@
+Dataset: Crime Data from 2020 to Present
+Source: Kaggle
+URL: https://www.kaggle.com/datasets/shubhamgupta012/crime-data-from-2020-to-present
+
+Note: Due to file size limitations on GitHub, the dataset file (Crime_Data_from_2020_to_Present.csv) is not included in this repository.
+Please download it from the Kaggle link above and place it in this directory.
