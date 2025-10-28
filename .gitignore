@@ -1,0 +1,13 @@
+# Ignore large data files
+data/Crime_Data_from_2020_to_Present.csv
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# VS Code
+.vscode/
