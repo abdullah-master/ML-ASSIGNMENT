@@ -78,7 +78,6 @@ Crime patterns vary substantially across LA neighborhoods, with central and down
 
 <img width="1333" height="701" alt="image" src="https://github.com/user-attachments/assets/6746ba7c-085c-48f2-a6d4-b182bf3df1e6" />
 
-
 Streets are the most common crime location, followed by single-family residences and parking lots.
 
 ---
@@ -117,7 +116,7 @@ We implemented four machine learning algorithms, each chosen for different stren
 - Gini impurity criterion for splitting
 - Used PCA for 2D visualization of decision boundary
 
-![Decision Tree Boundary](visualizations/dt_boundary.png)
+<img width="870" height="722" alt="image" src="https://github.com/user-attachments/assets/b432025d-8ffe-4664-ba31-2bce335d04f1" />
 
 **Trade-offs:**
 - Pros: Fast, interpretable, no preprocessing needed
@@ -140,7 +139,7 @@ We implemented four machine learning algorithms, each chosen for different stren
 
 **Alternative Considered:** Using only Gaussian NB on all features after encoding, but hybrid approach performed better by respecting feature types.
 
-![Naive Bayes ROC Curve](visualizations/nb_roc.png)
+<img width="691" height="547" alt="image" src="https://github.com/user-attachments/assets/47ce96e6-3bbc-49f7-a7e0-f95848d62468" />
 
 **Trade-offs:**
 - Pros: Very fast, handles missing data well, probabilistic outputs
@@ -165,7 +164,7 @@ We implemented four machine learning algorithms, each chosen for different stren
 
 **Alternative Considered:** Gradient Boosting (XGBoost), but Random Forest provided similar accuracy with better interpretability and faster training.
 
-![Feature Importance](visualizations/rf_importance.png)
+<img width="643" height="455" alt="image" src="https://github.com/user-attachments/assets/72618f2c-6736-4da4-b0b9-c31d15e8817e" />
 
 The feature importance analysis reveals:
 1. Weapon Used Cd is the strongest predictor (violent crimes typically involve weapons)
@@ -173,7 +172,7 @@ The feature importance analysis reveals:
 3. Hour and Area show moderate importance
 4. Month and Victim Age have lesser but still meaningful impact
 
-![Random Forest Accuracy](visualizations/rf_accuracy.png)
+<img width="567" height="435" alt="image" src="https://github.com/user-attachments/assets/fe279328-7364-43ac-944f-f999656b9ad5" />
 
 **Trade-offs:**
 - Pros: High accuracy, feature importance, resistant to overfitting
@@ -198,16 +197,17 @@ The feature importance analysis reveals:
 
 We tested k values from 1 to 20 to find the optimal number of neighbors:
 
-![KNN Error Rate Analysis](visualizations/knn_error.png)
+<img width="691" height="455" alt="image" src="https://github.com/user-attachments/assets/fe7e47ee-a0f4-40f1-b638-77da3c1473ce" />
 
 The error rate analysis shows:
 - k=1 overfits (memorizes training data)
 - k=11 minimizes test error
 - Higher k values increase bias, underfit the data
 
-![KNN Confusion Matrix](visualizations/knn_cm.png)
+<img width="559" height="455" alt="image" src="https://github.com/user-attachments/assets/36470827-cc74-456e-8137-935d24db6542" />
 
-![KNN Precision-Recall Curve](visualizations/knn_pr.png)
+<img width="567" height="455" alt="image" src="https://github.com/user-attachments/assets/bd3d66f3-1734-4b70-932e-110988660b81" />
+
 
 **Trade-offs:**
 - Pros: Simple, no training phase, handles non-linear patterns
@@ -297,7 +297,7 @@ After running all cells, you'll have:
 
 ### Overall Performance Comparison
 
-![Model Accuracy Comparison](visualizations/accuracy_comparison.png)
+<img width="989" height="590" alt="image" src="https://github.com/user-attachments/assets/af900d50-06dd-4266-a86e-5e66dec001f6" />
 
 **Performance Summary Table:**
 
@@ -312,7 +312,7 @@ Random Forest achieves the best accuracy, followed closely by KNN. Decision Tree
 
 ### Confusion Matrix Analysis
 
-![All Confusion Matrices](visualizations/all_confusion_matrices.png)
+<img width="1389" height="990" alt="image" src="https://github.com/user-attachments/assets/f07df33d-c0d6-43fc-8840-bec4e2240f79" />
 
 **Key Observations:**
 
@@ -338,7 +338,7 @@ Random Forest achieves the best accuracy, followed closely by KNN. Decision Tree
 
 ### ROC Curve Comparison
 
-![ROC Curves Comparison](visualizations/roc_comparison.png)
+<img width="846" height="626" alt="image" src="https://github.com/user-attachments/assets/fc2e89a8-be07-4b7f-8d80-40f5e62d7f1a" />
 
 The ROC curves illustrate each model's ability to distinguish between violent and non-violent crimes across different classification thresholds:
 
