@@ -68,15 +68,16 @@ Using crime data from 2020 to present, we developed and compared four machine le
 
 **Exploratory Insights:**
 
-![Top 10 Most Frequent Crimes](visualizations/top_crimes.png)
+<img width="1427" height="701" alt="Image" src="https://github.com/user-attachments/assets/ba902d49-8305-4c9b-bfae-69029aa6ef51" />
 
 The most common crimes are battery/assault and vehicle-related theft, with property crimes significantly outnumbering violent crimes.
 
-![Crime Distribution by Area](visualizations/crime_by_area.png)
+<img width="1023" height="774" alt="Image" src="https://github.com/user-attachments/assets/6cae4d92-cf3d-40e0-b5ea-48829285624d" />
 
 Crime patterns vary substantially across LA neighborhoods, with central and downtown areas showing more diverse crime types.
 
-![Common Premise Types](visualizations/premise_types.png)
+<img width="1333" height="701" alt="image" src="https://github.com/user-attachments/assets/6746ba7c-085c-48f2-a6d4-b182bf3df1e6" />
+
 
 Streets are the most common crime location, followed by single-family residences and parking lots.
 
