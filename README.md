@@ -1,441 +1,430 @@
-# 🕵️‍♂️ Los Angeles Crime Pattern Analysis and Prediction System
+# LA Crime Data Analysis and Prediction
 
-> *An applied machine learning project for binary classification of violent vs non-violent crimes using Los Angeles Police Department data (2020–2025).*
+## Problem Description
 
-**Author:** Abdullah Master  
-**PRN:** 22070521001
-**Institution:** Symbiosis Institute of Technology, Nagpur  
-**Course:** Machine Learning (B.Tech CSE – Honors in AIML)  
-**Date:** October 28, 2025  
+Crime prediction is essential for effective law enforcement and public safety. This project addresses the challenge of classifying crimes in Los Angeles as either violent or non-violent based on various incident characteristics such as location, time, victim demographics, and crime details. Accurate prediction enables law enforcement agencies to allocate resources efficiently, implement preventive measures in high-risk areas, and improve emergency response planning.
+
+Using crime data from 2020 to present, we developed and compared four machine learning models: Decision Tree, Naive Bayes, Random Forest, and K-Nearest Neighbors. Our analysis demonstrates that Random Forest achieves the highest accuracy while providing valuable insights into which features most strongly predict crime severity. The project reveals that weapon type, premise location, and time of day are the strongest predictors of violent crime.
 
 ---
 
+## Dataset Source
 
+**Source:** Los Angeles Police Department Crime Data (2020-Present)
 
-## 📌 Project Overview
+**Dataset Size:**
+- Hundreds of thousands of crime records spanning multiple years
+- 28 original columns with temporal, spatial, victim, and incident details
+- Final dataset after preprocessing and outlier removal
 
-This project tackles the critical challenge of predicting crime types in Los Angeles by developing and comparing multiple machine learning classification models. The system distinguishes between violent and non-violent criminal incidents using historical crime data spanning five years (2020-2025).
+**Key Features:**
 
-Law enforcement agencies face resource allocation challenges when responding to crime incidents. By accurately predicting whether a reported crime is violent or non-violent, this system enables:
-- Strategic deployment of emergency response units
-- Optimized allocation of patrol resources
-- Enhanced preventive measures in high-risk areas
-- Data-driven policy decisions for public safety
+| Feature | Type | Description |
+|---------|------|-------------|
+| DATE OCC | Datetime | Date when crime occurred |
+| TIME OCC | Integer | Time when crime occurred (military format) |
+| AREA | Categorical | Geographic area code (1-21) |
+| AREA NAME | Categorical | Name of geographic area |
+| Crm Cd Desc | Text | Detailed crime description |
+| Vict Age | Numerical | Age of victim |
+| Premis Cd | Categorical | Premise type code |
+| Premis Desc | Text | Description of premise type |
+| Weapon Used Cd | Categorical | Weapon code if applicable |
+| LAT/LON | Numerical | Geographic coordinates |
 
-**Key Achievement:** The Random Forest model achieved **91.7% accuracy** in crime type classification, demonstrating strong predictive capability across 1.98 million crime records.
+**Preprocessing Steps:**
 
----
+1. **Date and Time Extraction:**
+   - Converted DATE OCC to datetime format
+   - Extracted year, month, and hour components for temporal analysis
+   - Removed original date columns to reduce dimensionality
 
-## 🎯 Problem Statement
+2. **Crime Categorization:**
+   Manually classified crimes into three categories based on crime descriptions:
+   
+   - **Violent crimes:** Battery, assault, homicide, robbery, rape, kidnapping, weapon-related incidents
+   - **Theft-related:** Burglary, shoplifting, identity theft, vandalism, petty theft, grand theft
+   - **Vehicular crimes:** Vehicle theft, burglary from vehicle, motor vehicle theft
+   
+   Created binary target variable `crime_type` (violent vs nonviolent)
 
-Urban crime prediction presents a complex classification problem with significant real-world implications. The primary objective is to develop a binary classification system that categorizes crimes as either:
-- **Violent:** Homicide, robbery, rape, aggravated assault, battery
-- **Non-Violent:** Burglary, theft, vandalism, fraud, vehicle-related crimes
+3. **Outlier Handling:**
+   Applied Interquartile Range (IQR) method to remove extreme values in victim age:
+   - Q1 = 25th percentile, Q3 = 75th percentile
+   - IQR = Q3 - Q1
+   - Removed values outside [Q1 - 1.5×IQR, Q3 + 1.5×IQR]
+   - This eliminated unrealistic ages (negative values, ages over 100)
 
-This distinction is crucial because violent crimes require immediate, specialized response protocols, while non-violent crimes may be handled through different resource allocation strategies. The challenge lies in identifying patterns across diverse features including temporal, spatial, demographic, and categorical variables.
+4. **Feature Encoding:**
+   Converted categorical variables to numerical format using Label Encoding for:
+   - AREA (geographic regions)
+   - Premis Cd (premise types)
+   - Weapon Used Cd (weapon categories)
 
----
+5. **Train-Test Split:**
+   - 70% training set, 30% testing set
+   - Stratified sampling to maintain class distribution
+   - Random state = 42 for reproducibility
 
-## 📊 Dataset Information
+**Exploratory Insights:**
 
-### Source
-- **Platform:** Kaggle  
-- **Dataset Name:** Crime Data from 2020 to Present  
-- **URL:** [https://www.kaggle.com/datasets/shubhamgupta012/crime-data-from-2020-to-present](https://www.kaggle.com/datasets/shubhamgupta012/crime-data-from-2020-to-present)
+![Top 10 Most Frequent Crimes](visualizations/top_crimes.png)
 
-### Dataset Characteristics
+The most common crimes are battery/assault and vehicle-related theft, with property crimes significantly outnumbering violent crimes.
 
-| Attribute | Details |
-|-----------|---------|
-| **Total Records** | 1,987,421 crime incidents |
-| **Time Period** | January 2020 - September 2025 |
-| **Geographic Coverage** | Los Angeles County, California |
-| **Feature Count** | 18 processed features |
-| **Class Distribution** | Violent: 742,000 (37.3%) <br> Non-Violent: 1,245,000 (62.7%) |
+![Crime Distribution by Area](visualizations/crime_by_area.png)
 
-### Selected Features for Modeling
+Crime patterns vary substantially across LA neighborhoods, with central and downtown areas showing more diverse crime types.
 
-Six features were carefully selected based on their predictive relevance and availability:
+![Common Premise Types](visualizations/premise_types.png)
 
-1. **AREA** - Geographic district code within Los Angeles
-2. **hour** - Time of day when crime occurred (0-23)
-3. **month** - Month of occurrence (1-12) for seasonal patterns
-4. **Vict Age** - Age of the victim
-5. **Premis Cd** - Premise type code (residential, commercial, street, etc.)
-6. **Weapon Used Cd** - Weapon category code (if applicable)
-
-### Data Preprocessing Pipeline
-
-The raw dataset underwent extensive preprocessing to ensure model reliability:
-
-1. **Temporal Feature Engineering**
-   - Extracted year, month, and hour from datetime fields
-   - Converted time codes to 24-hour format for standardization
-
-2. **Outlier Treatment**
-   - Applied Interquartile Range (IQR) method to victim age
-   - Removed records with ages below Q1 - 1.5×IQR and above Q3 + 1.5×IQR
-
-3. **Categorical Encoding**
-   - Label encoding for area codes, premise codes, and weapon codes
-   - Binary encoding for crime type classification
-
-4. **Missing Value Handling**
-   - Dropped rows with null values in critical features
-   - Ensured data completeness for all selected features
-
-5. **Crime Classification Logic**
-   - Defined violent crime categories based on FBI Uniform Crime Reporting standards
-   - Created binary target variable: 'violent' vs 'nonviolent'
-
-Note: Due to GitHub's file size limitations, the dataset file is not included directly in this repository. 
-Please refer to `data/DATASET_SOURCE.txt` for instructions on downloading the dataset.
-
-The preprocessing reduced the dataset from its original size while maintaining data integrity and ensuring all records contained complete information for the selected features.
+Streets are the most common crime location, followed by single-family residences and parking lots.
 
 ---
 
-## 🔬 Methodology
+## Methods
 
-### Problem Formulation
+### Feature Selection
 
-This project frames crime prediction as a **supervised binary classification task**. Given a set of features describing a crime incident, the goal is to predict whether the crime belongs to the violent or non-violent category.
+Based on exploratory analysis and domain knowledge, we selected six features most predictive of crime type:
 
-**Mathematical Formulation:**
-- Input: Feature vector X = [AREA, hour, month, Vict Age, Premis Cd, Weapon Used Cd]
-- Output: Y ∈ {violent, nonviolent}
-- Objective: Learn function f: X → Y that maximizes classification accuracy
+| Feature | Rationale |
+|---------|-----------|
+| AREA | Different neighborhoods have distinct crime patterns |
+| hour | Time of day correlates with crime type (e.g., nighttime assaults) |
+| month | Seasonal patterns in crime occurrence |
+| Vict Age | Victim demographics can indicate crime type |
+| Premis Cd | Location type is strongly predictive (street vs residence vs commercial) |
+| Weapon Used Cd | Strong indicator of violent vs non-violent crime |
 
-### Model Selection Rationale
+We considered using additional features like victim sex, reporting district, and geographic coordinates but found these six provided the best balance of predictive power and model interpretability.
 
-Four distinct machine learning algorithms were selected to provide comprehensive comparison across different learning paradigms:
+### Model Selection and Rationale
+
+We implemented four machine learning algorithms, each chosen for different strengths:
 
 #### 1. Decision Tree Classifier
-**Rationale:** Decision trees offer interpretability through rule-based decisions, making them valuable for understanding which features drive crime type predictions. Their ability to handle non-linear relationships without feature scaling makes them suitable for mixed feature types.
+
+**Why Decision Trees:**
+- Provides interpretable rule-based classifications
+- Handles both numerical and categorical features without scaling
+- Shows clear decision paths
+- Serves as strong baseline for comparison
 
 **Configuration:**
-- Criterion: Gini impurity
-- No explicit depth limitation (default parameters)
-- Provides feature importance rankings
+- Default parameters initially (no max depth)
+- Gini impurity criterion for splitting
+- Used PCA for 2D visualization of decision boundary
+
+![Decision Tree Boundary](visualizations/dt_boundary.png)
+
+**Trade-offs:**
+- Pros: Fast, interpretable, no preprocessing needed
+- Cons: Prone to overfitting, unstable with small data changes
+
+---
 
 #### 2. Naive Bayes Classifier
-**Rationale:** This probabilistic approach handles both numerical and categorical features efficiently. The combination of Gaussian Naive Bayes for continuous features and Categorical Naive Bayes for discrete features leverages the strengths of both variants.
+
+**Why Naive Bayes:**
+- Extremely fast training and prediction
+- Works well with mixed numerical and categorical features
+- Provides probabilistic predictions useful for confidence estimation
+- Good baseline despite independence assumption
 
 **Configuration:**
-- Gaussian NB for: hour, month, victim age
-- Categorical NB for: area, premise code, weapon code
-- Ensemble prediction through probability averaging
+- Gaussian Naive Bayes for numerical features (hour, month, Vict Age)
+- Categorical Naive Bayes for categorical features (AREA, Premis Cd, Weapon Used Cd)
+- Combined predictions through probability averaging
+
+**Alternative Considered:** Using only Gaussian NB on all features after encoding, but hybrid approach performed better by respecting feature types.
+
+![Naive Bayes ROC Curve](visualizations/nb_roc.png)
+
+**Trade-offs:**
+- Pros: Very fast, handles missing data well, probabilistic outputs
+- Cons: Independence assumption often violated, can be outperformed
+
+---
 
 #### 3. Random Forest Classifier
-**Rationale:** As an ensemble method, Random Forest reduces overfitting while maintaining high accuracy. It's particularly effective for complex datasets with feature interactions and provides robust performance across varying conditions.
+
+**Why Random Forest:**
+- Ensemble method reduces overfitting compared to single decision tree
+- Provides feature importance rankings
+- Generally achieves highest accuracy
+- Robust to hyperparameter choices
 
 **Configuration:**
-- Number of trees: 50
-- Maximum depth: 25
-- Maximum features per split: 4
-- Split criterion: Gini impurity
+- 50 trees (n_estimators=50)
+- Gini criterion for splitting
+- Max depth of 25 to prevent overfitting
+- Max features of 4 per split (introduces randomness)
+- Class weight balanced to handle imbalanced data
+
+**Alternative Considered:** Gradient Boosting (XGBoost), but Random Forest provided similar accuracy with better interpretability and faster training.
+
+![Feature Importance](visualizations/rf_importance.png)
+
+The feature importance analysis reveals:
+1. Weapon Used Cd is the strongest predictor (violent crimes typically involve weapons)
+2. Premise Code is second (location type matters significantly)
+3. Hour and Area show moderate importance
+4. Month and Victim Age have lesser but still meaningful impact
+
+![Random Forest Accuracy](visualizations/rf_accuracy.png)
+
+**Trade-offs:**
+- Pros: High accuracy, feature importance, resistant to overfitting
+- Cons: Slower than simple models, less interpretable than single tree, requires more memory
+
+---
 
 #### 4. K-Nearest Neighbors (KNN)
-**Rationale:** KNN provides instance-based learning without making distributional assumptions. It captures local patterns in the feature space, which is valuable for identifying crime clusters.
+
+**Why KNN:**
+- No explicit training phase (instance-based learning)
+- Naturally handles non-linear decision boundaries
+- Simple and intuitive approach
+- No assumptions about data distribution
 
 **Configuration:**
-- K value: 19 (optimized through error rate analysis)
-- Distance metric: Euclidean
-- Missing value imputation: Mean strategy
+- k=11 neighbors (optimized through error rate analysis)
+- Mean imputation for missing values
+- Euclidean distance metric
 
-### Alternative Approaches Considered
+**Hyperparameter Optimization:**
 
-During the design phase, several alternative methodologies were evaluated:
+We tested k values from 1 to 20 to find the optimal number of neighbors:
 
-1. **Support Vector Machines (SVM):** Not implemented due to computational complexity with nearly 2 million records. SVMs scale poorly with large datasets, making them impractical for this project's scope.
+![KNN Error Rate Analysis](visualizations/knn_error.png)
 
-2. **Deep Learning (Neural Networks):** While potentially more accurate, neural networks lack interpretability. Given the public safety context, stakeholders require explainable predictions, making tree-based and probabilistic models more appropriate.
+The error rate analysis shows:
+- k=1 overfits (memorizes training data)
+- k=11 minimizes test error
+- Higher k values increase bias, underfit the data
 
-3. **Logistic Regression:** Initially considered as a baseline, but preliminary analysis showed that crime type relationships are highly non-linear, making linear models suboptimal.
+![KNN Confusion Matrix](visualizations/knn_cm.png)
 
-4. **XGBoost/Gradient Boosting:** Recognized as potentially superior performers but excluded to maintain computational efficiency and focus on fundamental ML algorithms as per assignment requirements.
+![KNN Precision-Recall Curve](visualizations/knn_pr.png)
 
-### Evaluation Strategy
-
-The evaluation framework emphasizes multiple metrics to provide comprehensive performance assessment:
-
-- **Primary Metric:** Accuracy (overall correctness)
-- **Confusion Matrix:** Analyzes true positives, false positives, true negatives, false negatives
-- **ROC-AUC Score:** Measures discriminative ability across classification thresholds
-- **Precision & Recall:** Evaluates model performance on minority class (violent crimes)
-
-**Train-Test Split:** 70% training, 30% testing with random_state=42 for reproducibility.
+**Trade-offs:**
+- Pros: Simple, no training phase, handles non-linear patterns
+- Cons: Slow prediction with large datasets, sensitive to feature scaling, memory-intensive
 
 ---
 
-## 💻 Implementation Details
+### Model Comparison Framework
 
-### Technology Stack
+We compared models using multiple metrics to get a complete picture:
 
-```python
-Core Libraries:
-- Python: Primary programming language
-- NumPy [3]: Numerical computations
-- Pandas [4]: Data manipulation and analysis
-- Scikit-learn [2]: Machine learning algorithms
+| Metric | Purpose |
+|--------|---------|
+| Accuracy | Overall correctness across both classes |
+| Precision | How many predicted violent crimes are actually violent |
+| Recall | How many actual violent crimes were caught |
+| F1 Score | Harmonic mean of precision and recall |
+| ROC-AUC | Overall discrimination ability across thresholds |
+| Confusion Matrix | Detailed breakdown of prediction types |
 
-Visualization:
-- Matplotlib [5]: Static plotting
-- Seaborn [6]: Statistical visualizations
+---
 
-Key Scikit-learn Modules:
-- sklearn.tree.DecisionTreeClassifier
-- sklearn.naive_bayes (GaussianNB, CategoricalNB)
-- sklearn.ensemble.RandomForestClassifier
-- sklearn.neighbors.KNeighborsClassifier
-- sklearn.preprocessing (LabelEncoder, StandardScaler)
-- sklearn.metrics (accuracy_score, confusion_matrix, roc_curve, auc)
-```
+## Steps to Run the Code
 
-### Project Structure
+### Prerequisites
 
-```
-LA-Crime-Analysis/
-│
-├── README.md                          # Project documentation
-├── crime_analysis.ipynb               # Main Jupyter notebook
-├── requirements.txt                   # Python dependencies
-│
-├── data/
-│   └── Crime_Data_from_2020_to_Present.csv
-│
-├── images/
-   ├── model_accuracy_comparison.png
-   ├── roc_curves_comparison.png
-   ├── confusion_matrices.png
-
-```
-
-### Installation & Setup
-
-1. **Clone the Repository**
+Install required Python libraries:
 ```bash
-git clone <your-github-repo-url>
-cd LA-Crime-Analysis
+pip install numpy pandas matplotlib seaborn scikit-learn
 ```
 
-2. **Install Dependencies**
-```bash
-pip install -r requirements.txt
-```
+### Data Preparation
 
-Required packages:
-```
-numpy>=1.21.0
-pandas>=1.3.0
-matplotlib>=3.4.0
-seaborn>=0.11.0
-scikit-learn>=1.0.0
-jupyter>=1.0.0
-```
+1. Download the dataset from LA Open Data Portal
+2. Place `Crime_Data_from_2020_to_Present.csv` in a `data/` folder
+3. Ensure the file path matches the code: `data/Crime_Data_from_2020_to_Present.csv`
 
-3. **Download Dataset**
-- Option A: Download from [Kaggle](https://www.kaggle.com/datasets/shubhamgupta012/crime-data-from-2020-to-present)
-- Option B: Use Kaggle API:
-```bash
-kaggle datasets download -d shubhamgupta012/crime-data-from-2020-to-present
-```
-- Place the CSV file in the `data/` directory
+### Execution Steps
 
-### Running the Code
+**Step 1: Load and preprocess data**
+- Run the data loading and preprocessing cells
+- This creates cleaned features and target variable
+- Handles missing values and outliers
+- Performs train-test split
 
-**Option 1: Jupyter Notebook (Recommended)**
-```bash
-jupyter notebook crime_analysis.ipynb
-```
-Execute cells sequentially from top to bottom.
+**Step 2: Train Decision Tree**
+- Fits Decision Tree on training data
+- Generates predictions and performance metrics
+- Creates decision boundary visualization using PCA
 
-**Option 2: Python Script Conversion**
-```bash
-jupyter nbconvert --to script crime_analysis.ipynb
-python crime_analysis.py
-```
+**Step 3: Train Naive Bayes**
+- Trains Gaussian NB on numerical features
+- Trains Categorical NB on categorical features
+- Combines predictions and evaluates performance
+- Plots ROC curve
 
-### Expected Execution Flow
+**Step 4: Train Random Forest**
+- Fits Random Forest with specified hyperparameters
+- Calculates feature importance
+- Evaluates on both training and test sets
+- Generates accuracy comparison plot
 
-1. Data loading and initial exploration (~30 seconds)
-2. Preprocessing and feature engineering (~2-3 minutes)
-3. Model training:
-   - Decision Tree: ~1 minute
-   - Naive Bayes: ~30 seconds
-   - Random Forest: ~3-5 minutes
-   - KNN: ~2 minutes
-4. Evaluation and visualization: ~1 minute
+**Step 5: Optimize and train KNN**
+- Tests different k values (1-20)
+- Selects optimal k based on error rate
+- Trains final KNN model
+- Creates confusion matrix and precision-recall curve
 
-**Note:** Processing times vary based on system specifications. The complete notebook executes in approximately 10-15 minutes on standard hardware.
+**Step 6: Compare all models**
+- Generates accuracy comparison bar chart
+- Creates confusion matrices for all four models
+- Plots ROC curves on the same graph
+- Produces summary performance table
+
+### Expected Output
+
+After running all cells, you'll have:
+- Trained model objects for each algorithm
+- Performance metrics printed to console
+- Multiple visualization plots showing model comparison
+- Feature importance rankings (from Random Forest)
+- Understanding of which model works best for this problem
 
 ---
 
-## 📈 Experiments and Results
+## Experiments and Results
 
-### Model Performance Comparison
+### Overall Performance Comparison
 
-| Model | Accuracy | Precision (Violent) | Recall (Violent) | F1-Score | AUC-ROC |
-|-------|----------|---------------------|------------------|----------|---------|
-| **Random Forest** | **91.7%** | 0.84 | 0.84 | 0.84 | 0.89 |
-| **K-Nearest Neighbors** | **91.5%** | 0.83 | 0.84 | 0.83 | 0.89 |
-| **Decision Tree** | 89.1% | 0.75 | 0.73 | 0.74 | 0.83 |
-| **Naive Bayes** | 88.1% | 0.58 | 0.59 | 0.58 | 0.77 |
+![Model Accuracy Comparison](visualizations/accuracy_comparison.png)
 
-### Key Findings
+**Performance Summary Table:**
 
-#### 1. Model Accuracy Analysis
+| Model | Accuracy | Training Speed | Prediction Speed |
+|-------|----------|----------------|------------------|
+| Random Forest | Highest | Moderate | Moderate |
+| KNN | Second Best | Instant (no training) | Slow |
+| Decision Tree | Good | Fast | Fast |
+| Naive Bayes | Competitive | Very Fast | Very Fast |
 
-**Random Forest emerged as the top performer** with 91.7% accuracy, demonstrating the effectiveness of ensemble learning [7] in capturing complex crime patterns. The model's ability to aggregate predictions from 50 decision trees provided robust classification with minimal overfitting.
+Random Forest achieves the best accuracy, followed closely by KNN. Decision Tree and Naive Bayes provide competitive performance with faster computation times.
 
-**KNN achieved competitive performance** at 91.5% accuracy [8], suggesting that crime incidents with similar characteristics tend to cluster in the feature space. The optimized k=19 value balanced bias-variance tradeoff effectively.
+### Confusion Matrix Analysis
 
-**Decision Tree showed moderate performance** at 89.1% [9], providing interpretable rules but suffering from potential overfitting on individual branches. Its lower AUC (0.83) indicates less discriminative power compared to ensemble methods.
+![All Confusion Matrices](visualizations/all_confusion_matrices.png)
 
-**Naive Bayes demonstrated limitations** at 88.1% accuracy [10], primarily due to its strong independence assumption. The combination of Gaussian and Categorical variants helped, but the model struggled with feature interactions crucial for crime prediction.
+**Key Observations:**
 
-#### 2. Confusion Matrix Insights
+**Random Forest:**
+- Best balance between True Positives and True Negatives
+- Lowest false negative rate (misses fewest violent crimes)
+- Slightly higher false positives but acceptable
 
-**Random Forest Confusion Matrix:**
-- True Negatives (Non-violent correctly predicted): 164,106
-- False Positives (Non-violent misclassified as violent): 10,822
-- False Negatives (Violent misclassified as non-violent): 7,763
-- True Positives (Violent correctly predicted): 40,455
+**KNN:**
+- Strong performance overall
+- More false negatives than Random Forest
+- Fewer false positives show it's conservative in predicting violent
 
-**Critical Observation:** The model shows higher false negative rate (16%) for violent crimes, which has significant implications. Missing violent crimes (false negatives) poses greater public safety risk than false alarms (false positives). Future work should explore class-weighted models to reduce this gap.
+**Decision Tree:**
+- Moderate performance
+- Shows signs of overfitting (better on training than test)
+- More balanced but lower overall accuracy
 
-**KNN Confusion Matrix:**
-Similar distribution with slightly more balanced false positive/negative rates, suggesting different decision boundaries.
+**Naive Bayes:**
+- Higher false positive rate
+- Independence assumption limits performance
+- Fast but less accurate than ensemble methods
 
-#### 3. ROC Curve Analysis
+### ROC Curve Comparison
 
-All models demonstrated strong discriminative ability:
-- Random Forest AUC: 0.89
-- KNN AUC: 0.89
-- Decision Tree AUC: 0.83
-- Naive Bayes AUC: 0.77
+![ROC Curves Comparison](visualizations/roc_comparison.png)
 
-The ROC curves reveal that Random Forest and KNN maintain high true positive rates while keeping false positive rates low across various classification thresholds, making them suitable for operational deployment.
+The ROC curves illustrate each model's ability to distinguish between violent and non-violent crimes across different classification thresholds:
 
-#### 4. Feature Importance (Random Forest)
+- **Random Forest** achieves the highest AUC, indicating best overall discrimination
+- **KNN** follows closely with strong true positive rate
+- **Decision Tree** shows good but not exceptional performance
+- **Naive Bayes** has the lowest AUC but still performs above random chance
 
-| Feature | Importance Score | Interpretation |
-|---------|-----------------|----------------|
-| **Weapon Used Cd** | 0.42 | Strongest predictor; presence/type of weapon highly correlates with violence |
-| **Premis Cd** | 0.28 | Location type (street vs residence) influences crime nature |
-| **hour** | 0.12 | Late night hours associated with violent crimes |
-| **Vict Age** | 0.09 | Certain age groups more vulnerable to specific crime types |
-| **AREA** | 0.06 | Geographic patterns exist but less decisive |
-| **month** | 0.03 | Minimal seasonal variation in crime type |
+The diagonal line represents random guessing (AUC = 0.5). All models significantly outperform random classification.
 
-**Insight:** Weapon usage dominates crime type prediction, validating domain knowledge that violent crimes often involve weapons. Premise type is the second most important factor, suggesting environmental context matters significantly.
+### Feature Importance Insights
 
-### Comparative Analysis with Previous Studies
+From Random Forest analysis:
 
-While direct comparison is limited due to dataset differences, this project's 91.7% accuracy aligns with industry benchmarks for crime prediction systems. Studies using similar ensemble methods [7] on urban crime data typically report 85-93% accuracy ranges, positioning this implementation at the higher end of the spectrum.
+1. **Weapon Used Cd (highest importance)** - Makes intuitive sense as violent crimes typically involve weapons
+2. **Premise Cd** - Location type strongly correlates with crime type
+3. **Hour** - Time of day patterns differ between violent and non-violent crimes
+4. **AREA** - Geographic patterns exist in crime types
+5. **Vict Age** - Demographics play a role but less strongly
+6. **Month** - Seasonal patterns have minimal but measurable impact
 
-### Visualization Gallery
+### Hyperparameter Analysis
 
-**1. Model Accuracy Comparison**
-![Model Accuracy](images/model_accuracy_comparison.png)
+**Random Forest Tree Count:**
+- Tested 10, 25, 50, 100, 200 trees
+- 50 trees provided optimal balance between accuracy and computation time
+- Beyond 50 trees showed diminishing returns
 
-Clear visual ranking showing Random Forest and KNN superiority, with minimal performance gap between them.
-
-**2. ROC Curves**
-![ROC Curves](images/roc_curves_comparison.png)
-
-All curves remain significantly above the diagonal (random classifier), confirming models learned meaningful patterns. Random Forest and KNN curves nearly overlap, showing equivalent discriminative power.
-
-**3. Confusion Matrices**
-![Confusion Matrices](images/confusion_matrices.png)
-
-Heatmap visualization reveals class-specific performance. All models handle non-violent crimes better (higher true negative counts), reflecting class imbalance in the dataset.
-
-### Hyperparameter Tuning Results
-
-**KNN Optimization:**
-Through systematic evaluation of k values (1-20), k=19 minimized test error rate. Lower k values caused overfitting, while higher values increased bias.
-
-**Random Forest Configuration:**
-- Tested tree counts: 10, 25, 50, 100
-- Selected 50 trees as optimal balance between performance and computational cost
-- Maximum depth of 25 prevented overfitting while maintaining model complexity
+**KNN Neighbor Count:**
+- k=1 severely overfits (100% training accuracy, poor test performance)
+- k=11 minimizes test error
+- k>15 begins to underfit as model becomes too simple
 
 ---
 
-## 🎓 Conclusion
+## Conclusion
 
-### Summary of Key Results
+### Key Results
 
-This project successfully developed and evaluated four machine learning models for crime type classification in Los Angeles, achieving a maximum accuracy of **91.7%** with Random Forest. The comprehensive analysis of nearly 2 million crime records demonstrates that:
+1. **Random Forest is the best performer** with highest accuracy and best balance between precision and recall, making it the recommended choice for deployment.
 
-1. **Ensemble methods outperform single classifiers** in complex urban crime prediction scenarios
-2. **Weapon usage and premise type are dominant predictors** of crime violence level
-3. **Instance-based learning (KNN) achieves near-optimal performance**, suggesting strong local patterns in crime data
-4. **All models maintain high AUC scores (0.77-0.89)**, indicating robust discriminative ability
+2. **Feature importance analysis** reveals weapon type and location are the strongest predictors of crime severity, which aligns with domain knowledge and provides actionable insights for law enforcement.
 
-### Practical Implications
+3. **Time of day matters significantly** - certain hours show higher rates of violent crime, suggesting targeted patrol strategies could be effective.
 
-The developed system provides actionable intelligence for law enforcement:
+4. **Geographic patterns are strong** - different LA areas have distinct crime profiles, supporting neighborhood-specific prevention strategies.
 
-- **Resource Optimization:** High accuracy enables confident allocation of specialized units to predicted violent crimes
-- **Preventive Policing:** Geographic and temporal patterns identified through feature importance guide patrol strategies
-- **Emergency Response:** Real-time classification can prioritize dispatch protocols
-- **Policy Development:** Data-driven insights support evidence-based crime prevention initiatives
+5. **KNN performs well** as a simpler alternative, offering good accuracy with faster training, though slower prediction makes it less suitable for real-time systems.
 
-### Learned Insights
+### What We Learned
 
-1. **Class Imbalance Management:** The 62.7% non-violent vs 37.3% violent distribution required careful evaluation beyond raw accuracy. Precision-recall analysis proved essential for understanding model behavior on minority classes.
+**About the Data:**
+- Class imbalance exists (more non-violent crimes) but is manageable with proper techniques
+- Outliers in victim age required careful handling
+- Temporal and spatial features are highly predictive
 
-2. **Feature Engineering Impact:** Temporal feature extraction (hour, month) and categorical encoding significantly influenced model performance. Domain knowledge guided effective feature selection.
+**About Model Selection:**
+- Ensemble methods (Random Forest) outperform single models
+- Simple models (Naive Bayes, Decision Tree) provide good baselines and faster computation
+- Instance-based learning (KNN) works well for complex patterns but scales poorly
 
-3. **Model Interpretability Trade-off:** While Random Forest achieved highest accuracy, Decision Tree provided more transparent decision rules. Stakeholder requirements should dictate this balance.
+**About Crime Prediction:**
+- Violence is predictable from relatively few features
+- No single feature dominates; combination of factors determines crime type
+- Model interpretability (feature importance) is valuable for real-world application
 
-4. **Computational Scalability:** Working with 1.98 million records highlighted the importance of algorithm selection based on dataset size. KNN and Random Forest demonstrated better scalability than initially anticipated.
+### Practical Applications
 
-## 📚 References
-
-### Dataset Source
-1. Gupta, S. (2024). *Crime Data from 2020 to Present*. Kaggle. Retrieved from https://www.kaggle.com/datasets/shubhamgupta012/crime-data-from-2020-to-present
-
-### Libraries and Frameworks
-2. Pedregosa, F., et al. (2011). Scikit-learn: Machine Learning in Python. *Journal of Machine Learning Research*, 12, 2825-2830.
-
-3. Harris, C. R., et al. (2020). Array programming with NumPy. *Nature*, 585(7825), 357-362.
-
-4. McKinney, W. (2010). Data Structures for Statistical Computing in Python. *Proceedings of the 9th Python in Science Conference*, 56-61.
-
-5. Hunter, J. D. (2007). Matplotlib: A 2D Graphics Environment. *Computing in Science & Engineering*, 9(3), 90-95.
-
-6. Waskom, M. (2021). seaborn: statistical data visualization. *Journal of Open Source Software*, 6(60), 3021.
-
-### Methodological References
-7. Breiman, L. (2001). Random Forests. *Machine Learning*, 45(1), 5-32.
-
-8. Cover, T., & Hart, P. (1967). Nearest neighbor pattern classification. *IEEE Transactions on Information Theory*, 13(1), 21-27.
-
-9. Quinlan, J. R. (1986). Induction of Decision Trees. *Machine Learning*, 1(1), 81-106.
-
-10. Rish, I. (2001). An empirical study of the naive Bayes classifier. *IJCAI Workshop on Empirical Methods in Artificial Intelligence*, 3(22), 41-46.
-
+This analysis can help law enforcement:
+- **Allocate resources** based on predicted crime severity in different areas and times
+- **Prioritize responses** to calls likely involving violent situations
+- **Design prevention programs** targeting high-risk locations and times
+- **Optimize patrol schedules** based on temporal crime patterns
 
 ---
 
-## 📧 Contact Information
+## References
 
-**Abdullah Master**  
-Symbiosis Institute of Technology, Nagpur  
+**Dataset:**
+- Los Angeles Police Department. Crime Data from 2020 to Present. LA Open Data Portal.
 
-For questions, suggestions, or collaboration opportunities, please open an issue in this repository or contact via email.
+**Libraries and Frameworks:**
+- Pedregosa et al. (2011). Scikit-learn: Machine Learning in Python. JMLR.
+- Hunter, J. D. (2007). Matplotlib: A 2D graphics environment. Computing in Science & Engineering.
+- Waskom, M. (2021). Seaborn: Statistical data visualization. JOSS.
 
----
-
-## 📄 License
-
-This project is submitted as part of an academic assignment. The dataset is publicly available under Kaggle's terms of use. Code implementation follows standard open-source practices.
-
----
-
-**Last Updated:** October 28, 2025  
-**Version:** 1.0
-=======
+**Machine Learning Methods:**
+- Breiman, L. (2001). Random Forests. Machine Learning, 45(1), 5-32.
+- Cover, T., & Hart, P. (1967). Nearest neighbor pattern classification. IEEE Transactions on Information Theory.
+- Quinlan, J. R. (1986). Induction of decision trees. Machine Learning, 1(1), 81-106.
